@@ -1,0 +1,7 @@
+venv/
+data/*.db
+logs/*.log
+__pycache__/
+.env
+.ruff_cache/
+.pytest_cache/
