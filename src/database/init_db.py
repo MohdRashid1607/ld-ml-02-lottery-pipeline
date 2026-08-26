@@ -18,6 +18,7 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from src.collectors.fetch_draw import collect_draw_range
 from src.database.db import init_db, insert_records
+from src.validation.validator import validate_batch
 
 
 def main():
@@ -28,8 +29,15 @@ def main():
     records = collect_draw_range(1965, 1974)
     print(f"Collected {len(records)} records from source.")
 
-    print("Inserting into database...")
-    summary = insert_records(records)
+    print("Validating records before insert...")
+    results = validate_batch(records)
+    print(f"  Valid: {len(results['passed'])}")
+    print(f"  Invalid (rejected, not inserted): {len(results['failed'])}")
+    for failure in results["failed"]:
+        print(f"    - {failure['record'].get('draw_id', '?')}: {failure['reasons']}")
+
+    print("Inserting only validated records into database...")
+    summary = insert_records(results["passed"])
 
     print(f"\nRun summary:")
     print(f"  Inserted: {summary['inserted']}")
