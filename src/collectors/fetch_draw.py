@@ -113,6 +113,7 @@ def collect_draw_range(start_draw_no: int, end_draw_no: int) -> list[dict]:
     """
     records = []
     for draw_no in range(start_draw_no, end_draw_no + 1):
+        print(f"Fetching draw {draw_no}...")
         html = fetch_draw_page(draw_no)
         if html is None:
             continue
