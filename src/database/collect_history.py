@@ -8,7 +8,10 @@ draws 1924 through 1974 (27 Feb 2026 - 21 Aug 2026).
 """
 
 import sys
-from datetime import datetime
+import logging
+import sqlite3
+import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
@@ -36,21 +39,27 @@ def get_latest_draw_number_in_db() -> int:
 
 
 def run_collection(start_draw: int, end_draw: int, mode: str) -> None:
-    run_start = datetime.now()
+    run_start = datetime.now(timezone.utc)
     print(f"[{mode}] Run started at {run_start}")
     print(f"[{mode}] Fetching draws {start_draw} to {end_draw}...")
 
+    # 1. Fetch & Parse (raw list of dicts)
     init_db()
     records = collect_draw_range(start_draw, end_draw)
-    fetched_count = len(records)
+    print(f"[{mode}] Fetched {len(records)} records.")
 
+    if not records:
+        return
+
+    # 2. Validate
     results = validate_batch(records)
     valid_records = results["passed"]
     rejected_count = len(results["failed"])
 
+    # 3. Persist
     summary = insert_records(valid_records)
 
-    run_end = datetime.now()
+    run_end = datetime.now(timezone.utc)
     duration = (run_end - run_start).total_seconds()
 
     print(f"\n[{mode}] Run summary")
@@ -83,7 +92,9 @@ def incremental_update():
     end = LATEST_KNOWN_DRAW
 
     if start > end:
-        print(f"[INCREMENTAL] Already up to date (latest stored: {latest_stored}). Nothing to fetch.")
+        print(
+            f"[INCREMENTAL] Already up to date (latest stored: {latest_stored}). Nothing to fetch."
+        )
         return
 
     run_collection(start, end, mode="INCREMENTAL")
@@ -91,6 +102,7 @@ def incremental_update():
 
 if __name__ == "__main__":
     import sys as _sys
+
     if len(_sys.argv) > 1 and _sys.argv[1] == "incremental":
         incremental_update()
     else:

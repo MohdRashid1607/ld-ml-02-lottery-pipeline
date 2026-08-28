@@ -62,8 +62,10 @@ def main():
     print(f"Collected {len(real_records)} real records.")
 
     all_records = real_records + INVALID_TEST_RECORDS
-    print(f"Validating {len(all_records)} records "
-          f"({len(real_records)} real + {len(INVALID_TEST_RECORDS)} deliberately invalid)...\n")
+    print(
+        f"Validating {len(all_records)} records "
+        f"({len(real_records)} real + {len(INVALID_TEST_RECORDS)} deliberately invalid)...\n"
+    )
 
     results = validate_batch(all_records)
 

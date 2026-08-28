@@ -8,7 +8,6 @@ rejection comes with a specific, human-readable reason.
 
 import logging
 from datetime import datetime
-from pathlib import Path
 
 import yaml
 
@@ -56,7 +55,8 @@ def validate_record(record: dict, rules: dict) -> list[str]:
     # --- Date format ---
     date_format = game_rules.get("date_format", "%a %d %b %Y")
     try:
-        datetime.strptime(record["draw_date"], date_format)
+        from datetime import timezone
+        datetime.strptime(record["draw_date"], date_format).replace(tzinfo=timezone.utc)
     except (ValueError, TypeError):
         reasons.append(
             f"Invalid date format: {record['draw_date']!r} (expected format like '{date_format}')"
@@ -70,9 +70,7 @@ def validate_record(record: dict, rules: dict) -> list[str]:
         reasons.append(f"Main numbers must all be integers: {main_numbers}")
     else:
         if len(main_numbers) != main_rules["count"]:
-            reasons.append(
-                f"Expected {main_rules['count']} main numbers, got {len(main_numbers)}"
-            )
+            reasons.append(f"Expected {main_rules['count']} main numbers, got {len(main_numbers)}")
         out_of_range = [
             n for n in main_numbers if not (main_rules["min"] <= n <= main_rules["max"])
         ]
@@ -84,7 +82,8 @@ def validate_record(record: dict, rules: dict) -> list[str]:
             reasons.append(f"Main numbers contain duplicates: {main_numbers}")
 
     # --- Bonus numbers: type, count, range, uniqueness ---
-    bonus_numbers = record.get("lucky_stars", [])
+    bonus_field = game_rules["bonus_numbers"].get("name", "lucky_stars")
+    bonus_numbers = record.get(bonus_field, [])
     bonus_rules = game_rules["bonus_numbers"]
 
     if not all(isinstance(n, int) for n in bonus_numbers):
@@ -125,9 +124,7 @@ def validate_batch(records: list[dict]) -> dict:
         reasons = validate_record(record, rules)
         if reasons:
             failed.append({"record": record, "reasons": reasons})
-            logger.warning(
-                f"Rejected record {record.get('draw_id', '?')}: {'; '.join(reasons)}"
-            )
+            logger.warning(f"Rejected record {record.get('draw_id', '?')}: {'; '.join(reasons)}")
         else:
             passed.append(record)
             logger.info(f"Validated record {record['draw_id']}: passed")

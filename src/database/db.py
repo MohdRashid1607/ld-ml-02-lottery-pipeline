@@ -129,6 +129,7 @@ def insert_draw(conn: sqlite3.Connection, record: dict) -> str:
     # thunderball, etc.), so look it up from game_rules.yaml the same
     # way the validator does, instead of hardcoding one game's key.
     from src.validation.validator import load_rules
+
     rules = load_rules()
     bonus_field = rules[record["game"]]["bonus_numbers"].get("name", "lucky_stars")
     bonus_numbers = record.get(bonus_field, [])

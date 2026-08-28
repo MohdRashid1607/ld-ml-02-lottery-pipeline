@@ -39,7 +39,7 @@ def main():
     print("Inserting only validated records into database...")
     summary = insert_records(results["passed"])
 
-    print(f"\nRun summary:")
+    print("\nRun summary:")
     print(f"  Inserted: {summary['inserted']}")
     print(f"  Skipped (duplicates): {summary['skipped_duplicate']}")
 
