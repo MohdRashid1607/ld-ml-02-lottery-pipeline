@@ -1,0 +1,42 @@
+# Game rules configuration - Day 4
+# Keeps number ranges, ball counts, and source info out of code,
+# per the "configuration over constants" engineering principle.
+
+euromillions:
+  source_url: "https://www.national-lottery.co.uk/results/euromillions/draw-details"
+  main_numbers:
+    count: 5
+    min: 1
+    max: 50
+  bonus_numbers:
+    name: "lucky_stars"
+    count: 2
+    min: 1
+    max: 12
+  date_format: "%a %d %b %Y"
+
+thunderball:
+  source_url: "https://www.national-lottery.co.uk/results/thunderball/draw-details"
+  main_numbers:
+    count: 5
+    min: 1
+    max: 39
+  bonus_numbers:
+    name: "thunderball"
+    count: 1
+    min: 1
+    max: 14
+  date_format: "%a %d %b %Y"
+
+set_for_life:
+  source_url: "https://www.national-lottery.co.uk/results/set-for-life/draw-details"
+  main_numbers:
+    count: 5
+    min: 1
+    max: 47
+  bonus_numbers:
+    name: "life_ball"
+    count: 1
+    min: 1
+    max: 10
+  date_format: "%a %d %b %Y"

@@ -1,8 +1,10 @@
 """
-EuroMillions collector - Day 6 refactor.
+Thunderball collector - Day 7.
 
-Responsibility: parse EuroMillions-specific HTML only.
+Responsibility: parse Thunderball-specific HTML only.
 All generic fetching, retry logic, and rate limiting lives in BaseCollector.
+
+Source: https://www.national-lottery.co.uk/results/thunderball/draw-details
 """
 
 import logging
@@ -12,19 +14,19 @@ from bs4 import BeautifulSoup
 
 from src.collectors.base import BaseCollector
 
-logger = logging.getLogger("euromillions_collector")
+logger = logging.getLogger("thunderball_collector")
 
 
-class EuroMillionsCollector(BaseCollector):
+class ThunderballCollector(BaseCollector):
     """
-    EuroMillions-specific collector.
+    Thunderball-specific collector.
     Inherits generic fetch/retry from BaseCollector.
     Only overrides parse_html() with game-specific logic.
     """
 
     def parse_html(self, html: str, draw_no: int) -> dict:
         """
-        Parse one EuroMillions draw page into a normalized record dict.
+        Parse one Thunderball draw page into a normalized record dict.
         Raises ValueError if required fields are missing.
         """
         soup = BeautifulSoup(html, "html.parser")
@@ -37,7 +39,7 @@ class EuroMillionsCollector(BaseCollector):
             if li.select_one(".DrawNumber-module-scss-module__0PF4Jq__number")
         ]
 
-        lucky_stars = [
+        thunderball = [
             int(
                 li.select_one(".DrawNumber-module-scss-module__0PF4Jq__number").get_text(strip=True)
             )
@@ -55,22 +57,18 @@ class EuroMillionsCollector(BaseCollector):
             if match:
                 parsed_draw_no = int(match.group())
 
-        code_span = soup.select_one(".RaffleCode-module-scss-module__zfcKHG__code")
-        raffle_code = code_span.get_text(strip=True) if code_span else None
-
-        if not main_numbers or not lucky_stars or parsed_draw_no is None:
+        if not main_numbers or not thunderball or parsed_draw_no is None:
             raise ValueError(
-                f"Missing required fields when parsing draw {draw_no}: "
-                f"main={main_numbers}, stars={lucky_stars}, draw_no={parsed_draw_no}"
+                f"Missing required fields when parsing Thunderball draw {draw_no}: "
+                f"main={main_numbers}, thunderball={thunderball}, draw_no={parsed_draw_no}"
             )
 
         return {
-            "draw_id": f"EUROMILLIONS-{parsed_draw_no}",
-            "game": "euromillions",
+            "draw_id": f"THUNDERBALL-{parsed_draw_no}",
+            "game": "thunderball",
             "draw_date": draw_date,
             "main_numbers": main_numbers,
-            "lucky_stars": lucky_stars,
-            "raffle_code": raffle_code,
+            "thunderball": thunderball,
             "draw_number": parsed_draw_no,
             "source_url": f"{self.base_url}?drawNo={parsed_draw_no}",
         }
