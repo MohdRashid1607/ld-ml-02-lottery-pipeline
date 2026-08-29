@@ -74,21 +74,30 @@ def fetch_weather_for_draws():
             WHERE draw_id = ?
         """, (venue_id, local_dt.isoformat(), utc_dt.isoformat(), draw["draw_id"]))
         
-        # Fetch weather from Open-Meteo
+        # Fetch weather from Open-Meteo with retry
         api_url = f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={iso_date}&end_date={iso_date}&hourly=temperature_2m&timezone=UTC"
         
+        data = None
+        for attempt in range(3):
+            try:
+                resp = requests.get(api_url, timeout=15)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    break
+                else:
+                    logger.warning(f"Weather API attempt {attempt+1} error {resp.status_code} for {iso_date}")
+                    import time
+                    time.sleep(1)
+            except Exception as e:
+                logger.warning(f"Weather API attempt {attempt+1} exception: {e}")
+                import time
+                time.sleep(1)
+
+        if not data or "hourly" not in data:
+            logger.error(f"Failed to retrieve weather for {draw['draw_id']} on {iso_date}")
+            continue
+
         try:
-            resp = requests.get(api_url, timeout=10)
-            if resp.status_code != 200:
-                logger.warning(f"Weather API error {resp.status_code} for {iso_date}")
-                continue
-                
-            data = resp.json()
-            if "hourly" not in data:
-                logger.warning(f"No hourly weather data found for {iso_date}")
-                continue
-                
-            # Find the closest hour
             times = data["hourly"]["time"]
             temps = data["hourly"]["temperature_2m"]
             

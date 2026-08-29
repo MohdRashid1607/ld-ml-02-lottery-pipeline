@@ -46,7 +46,8 @@ def run_collection(start_draw: int, end_draw: int, mode: str) -> None:
     # 1. Fetch & Parse (raw list of dicts)
     init_db()
     records = collect_draw_range(start_draw, end_draw)
-    print(f"[{mode}] Fetched {len(records)} records.")
+    fetched_count = len(records)
+    print(f"[{mode}] Fetched {fetched_count} records.")
 
     if not records:
         return

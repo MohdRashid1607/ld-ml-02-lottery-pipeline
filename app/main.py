@@ -13,7 +13,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for polished, research-oriented UI
+# Custom CSS for polished, adaptive UI (Supports both Light and Dark themes)
 st.markdown("""
 <style>
     /* Global Typography & Spacing */
@@ -22,69 +22,69 @@ st.markdown("""
         font-weight: 700;
         letter-spacing: -0.02em;
         margin-bottom: 0.2rem;
+        color: inherit;
     }
     .sub-title {
         font-size: 0.95rem;
-        color: #9aa0a6;
+        opacity: 0.75;
         margin-bottom: 1.2rem;
+        color: inherit;
     }
     .disclaimer-box {
-        background-color: rgba(255, 171, 0, 0.08);
-        border-left: 3px solid #ffab00;
-        padding: 10px 14px;
-        border-radius: 4px;
-        font-size: 0.84rem;
-        line-height: 1.4;
+        background-color: rgba(255, 171, 0, 0.12);
+        border-left: 4px solid #ffab00;
+        padding: 12px 16px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        line-height: 1.45;
         margin-bottom: 1.5rem;
-        color: #e8eaed;
+        color: inherit;
     }
     
-    /* KPI Card Styling */
-    .kpi-container {
-        display: flex;
-        gap: 12px;
-        margin-bottom: 1.5rem;
-    }
+    /* Adaptive KPI Card Styling */
     .kpi-card {
-        background-color: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 6px;
-        padding: 12px 14px;
-        flex: 1;
-        min-width: 120px;
+        background-color: rgba(128, 128, 128, 0.06);
+        border: 1px solid rgba(128, 128, 128, 0.18);
+        border-radius: 8px;
+        padding: 14px 16px;
+        text-align: left;
     }
     .kpi-label {
-        font-size: 0.75rem;
+        font-size: 0.74rem;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: #9aa0a6;
+        letter-spacing: 0.06em;
+        font-weight: 600;
+        opacity: 0.75;
         margin-bottom: 4px;
+        color: inherit;
     }
     .kpi-value {
-        font-size: 1.7rem;
+        font-size: 1.8rem;
         font-weight: 700;
-        color: #ffffff;
         line-height: 1.2;
+        color: inherit;
     }
     .kpi-subtext {
-        font-size: 0.72rem;
-        color: #80868b;
-        margin-top: 2px;
+        font-size: 0.74rem;
+        opacity: 0.65;
+        margin-top: 3px;
+        color: inherit;
     }
 
-    /* Inspector Card Styling */
+    /* Adaptive Inspector Card Styling */
     .inspector-card {
-        background-color: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 6px;
+        background-color: rgba(128, 128, 128, 0.05);
+        border: 1px solid rgba(128, 128, 128, 0.18);
+        border-radius: 8px;
         padding: 16px;
         height: 100%;
+        color: inherit;
     }
     .inspector-header {
         font-size: 0.95rem;
-        font-weight: 600;
-        color: #8ab4f8;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        font-weight: 700;
+        color: #ff4b4b;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.18);
         padding-bottom: 8px;
         margin-bottom: 12px;
     }
@@ -95,26 +95,27 @@ st.markdown("""
         font-size: 0.85rem;
     }
     .inspector-key {
-        color: #9aa0a6;
+        opacity: 0.75;
+        color: inherit;
     }
     .inspector-val {
-        color: #e8eaed;
-        font-weight: 500;
+        font-weight: 600;
         text-align: right;
+        color: inherit;
     }
     .section-divider {
         margin-top: 28px;
         margin-bottom: 24px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 1px solid rgba(128, 128, 128, 0.18);
     }
     
     /* Sidebar Section Headers */
     .sidebar-header {
-        font-size: 0.75rem;
+        font-size: 0.76rem;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: #8ab4f8;
-        font-weight: 600;
+        color: #ff4b4b;
+        font-weight: 700;
         margin-top: 14px;
         margin-bottom: 4px;
     }
