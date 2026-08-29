@@ -30,15 +30,28 @@ CREATE TABLE IF NOT EXISTS games (
     name TEXT NOT NULL UNIQUE
 );
 
+CREATE TABLE IF NOT EXISTS venues (
+    venue_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    city TEXT NOT NULL,
+    country_code TEXT NOT NULL,
+    latitude REAL,
+    longitude REAL,
+    timezone TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS draws (
     draw_id TEXT PRIMARY KEY,
     game_id INTEGER NOT NULL,
     draw_number INTEGER NOT NULL,
     draw_date TEXT NOT NULL,
+    draw_local_datetime TEXT,
+    draw_datetime_utc TEXT,
+    venue_id INTEGER,
     raffle_code TEXT,
     source_url TEXT,
     scraped_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (game_id) REFERENCES games (game_id),
+    FOREIGN KEY (venue_id) REFERENCES venues (venue_id),
     UNIQUE (game_id, draw_number)
 );
 
@@ -50,6 +63,16 @@ CREATE TABLE IF NOT EXISTS draw_numbers (
     value INTEGER NOT NULL,
     FOREIGN KEY (draw_id) REFERENCES draws (draw_id),
     UNIQUE (draw_id, number_type, position)
+);
+
+CREATE TABLE IF NOT EXISTS weather_readings (
+    draw_id TEXT PRIMARY KEY,
+    provider TEXT,
+    observed_at TEXT,
+    temperature_c REAL,
+    match_minutes INTEGER,
+    status TEXT,
+    FOREIGN KEY (draw_id) REFERENCES draws (draw_id)
 );
 """
 

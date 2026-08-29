@@ -4,6 +4,9 @@
 
 euromillions:
   source_url: "https://www.national-lottery.co.uk/results/euromillions/draw-details"
+  venue: "Paris"
+  timezone: "Europe/Paris"
+  draw_time: "21:00"  # Typical scheduled draw time
   main_numbers:
     count: 5
     min: 1
@@ -17,6 +20,9 @@ euromillions:
 
 thunderball:
   source_url: "https://www.national-lottery.co.uk/results/thunderball/draw-details"
+  venue: "London"
+  timezone: "Europe/London"
+  draw_time: "20:00"
   main_numbers:
     count: 5
     min: 1
@@ -30,6 +36,9 @@ thunderball:
 
 set_for_life:
   source_url: "https://www.national-lottery.co.uk/results/set-for-life/draw-details"
+  venue: "London"
+  timezone: "Europe/London"
+  draw_time: "20:00"
   main_numbers:
     count: 5
     min: 1
@@ -40,3 +49,15 @@ set_for_life:
     min: 1
     max: 10
   date_format: "%a %d %b %Y"
+
+venues:
+  Paris:
+    city: "Paris"
+    country_code: "FR"
+    latitude: 48.8566
+    longitude: 2.3522
+  London:
+    city: "London"
+    country_code: "GB"
+    latitude: 51.5074
+    longitude: -0.1278
