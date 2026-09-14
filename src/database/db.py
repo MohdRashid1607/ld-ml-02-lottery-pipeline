@@ -48,6 +48,8 @@ CREATE TABLE IF NOT EXISTS draws (
     draw_datetime_utc TEXT,
     venue_id INTEGER,
     raffle_code TEXT,
+    machine_number TEXT,
+    ball_set TEXT,
     source_url TEXT,
     scraped_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (game_id) REFERENCES games (game_id),
@@ -121,8 +123,8 @@ def insert_draw(conn: sqlite3.Connection, record: dict) -> str:
     try:
         conn.execute(
             """
-            INSERT INTO draws (draw_id, game_id, draw_number, draw_date, raffle_code, source_url)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO draws (draw_id, game_id, draw_number, draw_date, raffle_code, machine_number, ball_set, source_url)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 record["draw_id"],
@@ -130,6 +132,8 @@ def insert_draw(conn: sqlite3.Connection, record: dict) -> str:
                 record["draw_number"],
                 record["draw_date"],
                 record.get("raffle_code"),
+                record.get("machine_number"),
+                record.get("ball_set"),
                 record.get("source_url"),
             ),
         )

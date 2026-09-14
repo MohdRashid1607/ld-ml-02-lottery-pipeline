@@ -1,7 +1,7 @@
 import logging
 import time
 from abc import ABC, abstractmethod
-
+import re
 import requests
 
 logger = logging.getLogger("collector_base")
@@ -42,6 +42,30 @@ class BaseCollector(ABC):
         logger.error(f"Failed to fetch draw {draw_no} after {self.max_retries} attempts.")
         return None
 
+    @staticmethod
+    def parse_machine_info(soup) -> tuple[str | None, str | None]:
+        """
+        Extract the draw machine name and ball set identifier.
+
+        These are alphanumeric identifiers (e.g. "13" for EuroMillions,
+        "Excalibur4" for Thunderball), not necessarily pure numbers, so
+        both are kept as strings rather than cast to int.
+
+        Returns (machine_name, ball_set). Either may be None if the
+        page doesn't expose this section.
+        """
+        container = soup.select_one('[data-testid="draw-machines"]')
+        if not container:
+            return None, None
+
+        text = container.get_text(" ", strip=True)
+        machine_match = re.search(r"Draw machine:\s*([A-Za-z0-9]+)", text)
+        ball_set_match = re.search(r"Ball set:\s*([A-Za-z0-9]+)", text)
+
+        machine_name = machine_match.group(1) if machine_match else None
+        ball_set = ball_set_match.group(1) if ball_set_match else None
+        return machine_name, ball_set
+    
     @abstractmethod
     def parse_html(self, html: str, draw_no: int) -> dict:
         """
