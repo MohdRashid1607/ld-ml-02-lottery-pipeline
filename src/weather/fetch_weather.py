@@ -27,6 +27,32 @@ def fetch_weather_for_draws():
         row["city"]: row["venue_id"] for row in conn.execute("SELECT * FROM venues").fetchall()
     }
 
+    # Ensure venues exist
+    for city, v_info in rules.get("venues", {}).items():
+        if city not in venues:
+            cursor = conn.execute(
+                """
+                INSERT INTO venues (city, country_code, latitude, longitude, timezone)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (v_info["city"], v_info["country_code"], v_info["latitude"], v_info["longitude"], rules[list(rules.keys())[0]]["timezone"] if "timezone" not in v_info else v_info["timezone"])
+            )
+            # Find a game that uses this venue to get its timezone
+            tz = "UTC"
+            for game, grules in rules.items():
+                if isinstance(grules, dict) and grules.get("venue") == city:
+                    tz = grules.get("timezone", "UTC")
+                    break
+            
+            # Update timezone properly
+            conn.execute(
+                "UPDATE venues SET timezone = ? WHERE venue_id = ?",
+                (tz, cursor.lastrowid)
+            )
+            conn.commit()
+            venues[city] = cursor.lastrowid
+
+
     # 2. Get all draws that don't have weather readings
     cursor = conn.execute("""
         SELECT d.draw_id, d.draw_date, g.name as game_name 

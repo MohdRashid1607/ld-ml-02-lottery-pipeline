@@ -183,13 +183,17 @@ def load_comprehensive_data():
     query = """
         SELECT 
             d.draw_id,
+            d.game_id,
             g.name as game,
             d.draw_number,
             d.draw_date,
             d.draw_local_datetime,
             d.draw_datetime_utc,
+            d.machine_number as machine_id,
+            d.ball_set as ball_set_id,
+            v.venue_id,
             v.city,
-            v.country_code,
+            v.country_code as country,
             v.latitude,
             v.longitude,
             v.timezone,
@@ -271,7 +275,8 @@ selected_games = st.sidebar.multiselect(
 
 # City Selection
 st.sidebar.markdown('<div class="sidebar-header">Draw Cities</div>', unsafe_allow_html=True)
-all_cities = sorted(df["city"].dropna().unique())
+df["city_display"] = df["city"].fillna("Unknown")
+all_cities = sorted(df["city_display"].unique())
 selected_cities = st.sidebar.multiselect(
     "Draw Cities", options=all_cities, default=all_cities, label_visibility="collapsed"
 )
@@ -314,7 +319,7 @@ if st.sidebar.button("🔄 Reset All Filters", use_container_width=True):
     st.rerun()
 
 # Apply Filters
-filtered = df[(df["game"].isin(selected_games)) & (df["city"].isin(selected_cities))]
+filtered = df[(df["game"].isin(selected_games)) & (df["city_display"].isin(selected_cities))]
 
 if selected_status == "Enriched Only":
     filtered = filtered[filtered["temperature_c"].notna()]
@@ -422,12 +427,14 @@ def render_browse_table():
         "draw_date",
         "main_numbers",
         "bonus_display",
+        "machine_id",
+        "ball_set_id",
         "city",
         "temperature_c",
         "quality_badge",
         "source_url",
     ]
-    table_df = filtered[display_cols].copy()
+    table_df = filtered[[c for c in display_cols if c in filtered.columns]].copy()
     table_df.rename(
         columns={
             "draw_id": "Draw ID",
@@ -436,6 +443,8 @@ def render_browse_table():
             "draw_date": "Draw Date",
             "main_numbers": "Main Numbers",
             "bonus_display": "Bonus / Lucky Ball",
+            "machine_id": "Draw Machine",
+            "ball_set_id": "Ball Set",
             "city": "Draw City",
             "temperature_c": "Temp (°C)",
             "quality_badge": "Weather Quality",
@@ -468,6 +477,8 @@ def render_inspector(key_suffix=""):
         draw_row = filtered[filtered["draw_id"] == selected_draw_id].iloc[0]
 
         c1, c2, c3 = st.columns(3)
+        machine_val = draw_row.get('machine_id') or 'N/A'
+        ball_set_val = draw_row.get('ball_set_id') or 'N/A'
         with c1:
             st.markdown(
                 f"""
@@ -478,6 +489,8 @@ def render_inspector(key_suffix=""):
                 <div class="inspector-row"><span class="inspector-key">Draw Date:</span><span class="inspector-val">{draw_row['draw_date']}</span></div>
                 <div class="inspector-row"><span class="inspector-key">Main Numbers:</span><span class="inspector-val"><code>{draw_row['main_numbers']}</code></span></div>
                 <div class="inspector-row"><span class="inspector-key">Bonus Numbers:</span><span class="inspector-val"><code>{draw_row['bonus_display']}</code></span></div>
+                <div class="inspector-row"><span class="inspector-key">Draw Machine:</span><span class="inspector-val"><code>{machine_val}</code></span></div>
+                <div class="inspector-row"><span class="inspector-key">Ball Set:</span><span class="inspector-val"><code>{ball_set_val}</code></span></div>
                 <div class="inspector-row"><span class="inspector-key">Source Link:</span><span class="inspector-val"><a href="{draw_row['source_url']}" target="_blank">Official Site</a></span></div>
             </div>
             """,
@@ -489,7 +502,7 @@ def render_inspector(key_suffix=""):
                 f"""
             <div class="inspector-card">
                 <div class="inspector-header">📍 Venue & Geolocation</div>
-                <div class="inspector-row"><span class="inspector-key">City & Country:</span><span class="inspector-val">{draw_row['city']} ({draw_row['country_code']})</span></div>
+                <div class="inspector-row"><span class="inspector-key">City & Country:</span><span class="inspector-val">{draw_row['city']} ({draw_row['country']})</span></div>
                 <div class="inspector-row"><span class="inspector-key">Latitude:</span><span class="inspector-val">{draw_row['latitude']}</span></div>
                 <div class="inspector-row"><span class="inspector-key">Longitude:</span><span class="inspector-val">{draw_row['longitude']}</span></div>
                 <div class="inspector-row"><span class="inspector-key">Timezone:</span><span class="inspector-val"><code>{draw_row['timezone']}</code></span></div>
@@ -588,28 +601,40 @@ def render_export_section(key_suffix=""):
     )
 
     export_columns = [
+        "game_id",
         "draw_id",
-        "game",
-        "draw_number",
-        "draw_date",
+        "machine_id",
+        "ball_set_id",
+        "venue_id",
+        "source_url", 
         "draw_local_datetime",
         "timezone",
         "draw_datetime_utc",
-        "main_numbers",
-        "bonus_numbers",
         "city",
-        "country_code",
+        "country",
         "latitude",
         "longitude",
         "temperature_c",
+        "main_numbers",
+        "bonus_numbers",
         "weather_observed_at",
         "match_minutes",
         "quality_status",
-        "source_url",
         "weather_provider",
         "scraped_at",
     ]
     export_df = filtered[[c for c in export_columns if c in filtered.columns]].copy()
+    
+    # Rename to assessment terminology
+    rename_map = {
+        "source_url": "source_record_id",
+        "match_minutes": "weather_match_difference",
+        "quality_status": "record_status",
+        "weather_provider": "source_confidence",
+        "scraped_at": "retrieved_at"
+    }
+    export_df.rename(columns=rename_map, inplace=True)
+    
     export_df["schema_version"] = "v1.0.0"
     export_df["time_basis"] = "scheduled_time"
     export_df["location_confidence"] = "verified_venue"
