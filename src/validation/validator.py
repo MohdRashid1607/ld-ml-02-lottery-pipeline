@@ -56,6 +56,7 @@ def validate_record(record: dict, rules: dict) -> list[str]:
     date_format = game_rules.get("date_format", "%a %d %b %Y")
     try:
         from datetime import timezone
+
         datetime.strptime(record["draw_date"], date_format).replace(tzinfo=timezone.utc)
     except (ValueError, TypeError):
         reasons.append(

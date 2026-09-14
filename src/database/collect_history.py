@@ -8,9 +8,6 @@ draws 1924 through 1974 (27 Feb 2026 - 21 Aug 2026).
 """
 
 import sys
-import logging
-import sqlite3
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 

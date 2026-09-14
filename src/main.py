@@ -14,6 +14,7 @@ Usage examples:
   # Specific draw range
   python src/main.py --game euromillions --start 1960 --end 1974
 
+  
   # Custom database path
   python src/main.py --game euromillions --mode full --db data/test.db
 """
@@ -90,6 +91,7 @@ def run_pipeline(game: str, start: int, end: int, db_path: str, mode: str) -> No
 
     # 1. Initialize DB and configuration
     from src.database.db import init_db as _init_db
+
     _init_db()
 
     config = get_game_config(game)

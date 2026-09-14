@@ -58,6 +58,8 @@ class SetForLifeCollector(BaseCollector):
             if match:
                 parsed_draw_no = int(match.group())
 
+        machine_number, ball_set = self.parse_machine_info(soup)
+
         if not main_numbers or not life_ball or parsed_draw_no is None:
             raise ValueError(
                 f"Missing required fields when parsing Set For Life draw {draw_no}: "
@@ -71,5 +73,7 @@ class SetForLifeCollector(BaseCollector):
             "main_numbers": main_numbers,
             "life_ball": life_ball,
             "draw_number": parsed_draw_no,
+            "machine_number": machine_number,
+            "ball_set": ball_set,
             "source_url": f"{self.base_url}?drawNo={parsed_draw_no}",
         }
